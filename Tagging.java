@@ -1,26 +1,35 @@
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class Tagging {
     private static ReadModel data =  new ReadModel();
     private static HiddenMarkovModel model = data.getModel();
-    private static String[] words = { "I", "drink", "tea" }; //file input
-    private static String[] states = { "#", "NN", "VB" };
-    private static double[] start_p = { 0.3, 0.4, 0.3 };
-    private static double[][] trans_p = { { 0.2, 0.2, 0.6 }, { 0.4, 0.1, 0.5 }, { 0.1, 0.8, 0.1 } };
-    private static double[][] emit_p = { { 0.01, 0.02, 0.02 }, { 0.8, 0.01, 0.5 }, { 0.19, 0.97, 0.48 } };
+    private static String[] tags = (String[]) model.tagMap.keySet().toArray(new String[model.tagMap.keySet().size()]);
+
 
     public static void main(String[] args) {
-        //ReadModel data = new ReadModel();
-        //HiddenMarkovModel model = data.getModel();
-        //System.out.println(model.tagMap);
-        Tagging v = new Tagging();
-        int[] tags = v.viterbi(words, states, start_p, trans_p, emit_p);
-        /**BufferedReader br = null;
-        FileReader fr = null;
-        File inputDir = new File(args[1]);
-        File outputDir = new File(args[2]);**/
+        if(args[0].equals("annotate")) {
+            File folder = new File(args[1]);
+            File outputDir = new File(args[2]);
+            List<String> wordList = splitText(folder);
+            String[] words = wordList.toArray(new String[wordList.size()]);
+            Tagging v = new Tagging();
+            String tags = v.viterbi(words);
+            writeLineToFile(outputDir, tags);
+        }
+    }
+
+    private static void writeLineToFile(File output, String taggedText){
+        try{
+            FileOutputStream out = new FileOutputStream(output);
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(out));
+            bw.write(taggedText);
+            bw.close();
+        } catch(IOException ex){
+            System.out.println("Something went wrong!");
+        }
 
     }
 
@@ -32,6 +41,37 @@ public class Tagging {
             this.path = deepCopyIntArray(path);
             this.prob = prob;
         }
+    }
+
+    private static List<String> splitText(File folder){
+        BufferedReader br = null;
+        FileReader fr = null;
+        List<String> temp = new ArrayList<String>();
+        for (File file : folder.listFiles()) {
+            try {
+                br = new BufferedReader(new FileReader(file));
+                String s = null;
+                while ((s = br.readLine()) != null) {
+                    if (s.equals("")) {
+                        continue;
+                    }
+                    String[] parts = s.split("\\s+");
+                    for(int x = 0; x < parts.length; x++){
+                        temp.add(parts[x]);
+                    }
+                }
+            if (br != null) {
+                br.close();
+            }
+            if (fr != null) {
+                fr.close();
+            }
+        } catch(IOException e) {
+            String[] parts = null;
+            e.printStackTrace();
+        }
+        }
+        return temp;
     }
 
     private static int[] deepCopyIntArray(int[] oldArray){
@@ -51,23 +91,35 @@ public class Tagging {
         return newArray;
     }
 
-    public static int[] viterbi(String[] words, String[] states, double[] start_p, double[][] trans_p, double[][] emit_p){
-        Node[] n = new Node[states.length];
-        for (int st = 0; st < states.length; st ++){
+    public static String viterbi(String[] words){
+        Node[] n = new Node[tags.length];
+        double emit;
+        for (int state = 0; state < tags.length; state++){
             int[] intArray = new int[1];
-            intArray[0] = st;
-            n[st] = new Node(intArray, start_p[st] * emit_p[st][0]);
+            intArray[0] = state;
+            if (model.containsEmiss(tags[state], words[0]) == 1){
+                emit = model.getEmiss(tags[state], words[0]);
+            }else{
+                emit = 0.0;
+            }
+            n[state] = new Node(intArray, model.getStart(tags[state]) * emit);
         }
 
         for (int output = 1; output < words.length; output++){
-            Node[] n2 = new Node[states.length];
-            for(int nextState = 0; nextState < states.length; nextState++){
+            Node[] n2 = new Node[tags.length];
+            for (int nextState = 0; nextState < tags.length; nextState++){
                 int[] argMax = new int[0];
                 double valMax = 0;
-                for(int st = 0; st < states.length; st++){
-                    int[] path = deepCopyIntArray(n[st].path);
-                    double prob = n[st].prob;
-                    double p = emit_p[nextState][output] * trans_p[st][nextState];
+                for (int state = 0; state < tags.length; state++){
+                    int[] path = deepCopyIntArray(n[state].path);
+                    double prob = n[state].prob;
+                    if(model.containsEmiss(tags[nextState], words[output]) == 1){
+                        emit = model.getEmiss(tags[nextState], words[output]);
+                    } else {
+                        emit = 0.0;
+                    }
+                    double p = emit * model.getTrans(tags[state], tags[nextState]);
+
                     prob *= p;
                     if(prob > valMax){
                         if(path.length == words.length){
@@ -84,9 +136,9 @@ public class Tagging {
         }
         int[] argMax = new int[0];
         double valMax = 0;
-        for(int st = 0; st < states.length; st++){
-            int[] path = deepCopyIntArray(n[st].path);
-            double prob = n[st].prob;
+        for (int state = 0; state < tags.length; state++){
+            int[] path = deepCopyIntArray(n[state].path);
+            double prob = n[state].prob;
             if(prob > valMax){
                 argMax = deepCopyIntArray(path);
                 valMax = prob;
@@ -94,10 +146,11 @@ public class Tagging {
         }
         String viterbiPath = "";
         for(int i = 0; i < argMax.length; i++){
-            String tags = words[i] + "/" + states[argMax[i]] + " ";
-            System.out.print(words[i] + "/" + states[argMax[i]] + " ");
+            String tagged = words[i] + "/" + tags[argMax[i]] + " ";
+            System.out.print(words[i] + "/" + tags[argMax[i]] + " ");
+            viterbiPath += tagged;
         }
-        return argMax;
+        return viterbiPath;
     }
 
 }

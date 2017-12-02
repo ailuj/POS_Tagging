@@ -37,8 +37,15 @@ public class Evaluation {
 			 String trainSentences="";
 			 String testSentences="";
 			 try {
-				 PrintWriter trainWriter = new PrintWriter("./"+outputs+"/"+trainTitle, "UTF-8");
-				 PrintWriter testWriter = new PrintWriter("./"+outputs+"/"+testTitle, "UTF-8");
+				  new File("./"+outputs+"/"+trainTitle).mkdirs();
+				  new File("./"+outputs+"/"+testTitle).mkdirs();
+
+
+				 File testPath = new File("./"+outputs+"/"+testTitle);
+
+
+				 PrintWriter trainWriter = new PrintWriter("./"+outputs+"/"+trainTitle+"/train", "UTF-8");
+				 PrintWriter testWriter = new PrintWriter("./"+outputs+"/"+testTitle+"/test", "UTF-8");
 				 for (String sentence : sentences) {
 					 if (j % 10 == i) {
 						 testWriter.write(sentence+"\n");
@@ -59,7 +66,19 @@ public class Evaluation {
 	 }
 
 	 private static double crossValidation(File outputs){
-		 //todo
+		 BufferedReader br = null;
+		 for (int i=0;i<10;i++){
+			 try{
+				 //train the model
+				//br = new BufferedReader(new FileReader("./"+outputs+"/Fold_"+i+"_train"));
+
+
+
+			 }
+			 catch(Exception e){
+				 e.printStackTrace();
+			 }
+		 }
 		 return 0.0;
 	 }
 

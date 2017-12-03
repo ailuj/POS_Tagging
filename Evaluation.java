@@ -71,7 +71,7 @@ public class Evaluation {
 
 			 System.out.println(">Annotating");
 			 String[] testArguments={"annotate","./"+outputs+"/Fold_"+i+"_test/","./"+outputs};
-			 uebung2_group1.main(trainArguments);
+			 uebung2_group1.main(testArguments);
 
 			 //read in test file and output file for accuracy calculation
 			 System.out.println(">Calculating Accuracy");

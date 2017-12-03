@@ -2,6 +2,7 @@ import java.io.*;
 import java.util.*;
 
 public class HiddenMarkovModel implements Serializable {
+	private static final long serialVersionUID = -7809230847994360168L;
 	public HashMap<String,Integer> tagMap;				//mappt Tags auf Array-Index
 	public double[] p_start;							//enthält Startwahrscheinlichkeiten für alle Tags
 	public double[][] p_trans;							//enthält Transitionswahrscheinlichkeiten vom 1. Tag zum 2. Tag

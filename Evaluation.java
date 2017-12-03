@@ -67,11 +67,11 @@ public class Evaluation {
 			 //train the model
 			 System.out.println(">Training");
 			 String[] trainArguments={"train","./"+outputs+"/Fold_"+i+"_train/"};
-			 training.main(trainArguments);
+			 uebung2_group1.main(trainArguments);
 
 			 System.out.println(">Annotating");
 			 String[] testArguments={"annotate","./"+outputs+"/Fold_"+i+"_test/","./"+outputs};
-			 training.main(trainArguments);
+			 uebung2_group1.main(trainArguments);
 
 			 //read in test file and output file for accuracy calculation
 			 System.out.println(">Calculating Accuracy");

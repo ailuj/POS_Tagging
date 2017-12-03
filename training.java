@@ -38,9 +38,9 @@ public class training {
 								}
 								tags[model.getArrayIndex(tag)]++;
 								if (model.containsEmiss(tag, word) == 0) {
-									model.setEmiss(tag, word, 1);
+									model.setEmiss(tag, word, 1, sentenceCount%2);
 								} else {
-									model.setEmiss(tag, word, model.getEmiss(tag, word)+1);
+									model.setEmiss(tag, word, model.getEmiss(tag, word)+1, sentenceCount%2);
 								}
 								if (!found_start) {					//Satzanfang -> p_start
 									found_start = true;

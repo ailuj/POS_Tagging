@@ -45,9 +45,6 @@ public class training {
 								if (!found_start) {					//Satzanfang -> p_start
 									found_start = true;
 									sentenceCount++;
-									if (tag.equals(".")) {
-										System.out.println(". als Start: " + s);
-									}
 									model.setStart(tag, model.getStart(tag)+1);
 								} else {							//im Satz -> p_trans
 									if (lastTag != null) {

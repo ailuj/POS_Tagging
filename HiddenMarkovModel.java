@@ -74,28 +74,17 @@ public class HiddenMarkovModel implements Serializable {
 	}
 
 	public void calcProbabilities(int sentenceCount, int[] tagCount, int transCount) {
+		double x = 0.5;
 		for (int i=0; i<93; i++) {
-			if (p_start[i] == 0) {
-				p_start[i] = 1;
-				sentenceCount++;
-			}
-			p_unseenEmiss[i] = 1.0 / (tagCount[i] + (wordSet.size() - p_emiss[i].size()));
-			for (int j=0; j<93; j++) {
-				if (p_trans[i][j] == 0) {
-					p_trans[i][j] = 1;
-					transCount++;
-				}
-			}
-		}
-		for (int i=0; i<93; i++) {
-			p_start[i] = p_start[i]/sentenceCount;
+			p_start[i] = (p_start[i] + 1) / (sentenceCount + 93);
+			p_unseenEmiss[i] = x / (tagCount[i] + (x * wordSet.size()));
 			Iterator it = p_emiss[i].entrySet().iterator();
 			while (it.hasNext()) {
 				Map.Entry pair = (Map.Entry)it.next();
-				p_emiss[i].put(pair.getKey(), ((Double)pair.getValue()).doubleValue() / (tagCount[i] + (wordSet.size() - p_emiss[i].size())));		//cast unsafe?
+				p_emiss[i].put(pair.getKey(), (((Double)pair.getValue()).doubleValue() + x) / (tagCount[i] + (x * wordSet.size())));
 			}
 			for (int j=0; j<93; j++) {
-				p_trans[i][j] = p_trans[i][j]/transCount;
+				p_trans[i][j] = (p_trans[i][j] + x) / (transCount + (x*93*93));
 			}
 		}
 	}

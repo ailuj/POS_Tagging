@@ -9,7 +9,8 @@ public class training {
 			File folder = new File(args[1]);
 			boolean found_start = false;
 			int sentenceCount = 0;
-			int tags = 0;
+			int tags0 = 0;
+			int[] tags = new int[93];
 			int distinctTags = 0;
 			int transCount = 0;
 			HiddenMarkovModel model = new HiddenMarkovModel();
@@ -28,13 +29,14 @@ public class training {
 						String[] parts = s.split("\\s+");
 						for (int i=0; i<parts.length; i++) {
 							if (!parts[i].equals("")) {
-								tags++;
+								tags0++;
 								lastTag = tag;
 								word = parts[i].substring(0,parts[i].lastIndexOf("/"));
 								tag = parts[i].substring(parts[i].lastIndexOf("/")+1);
 								if (model.setTag(tag, distinctTags) == 1) {
 									distinctTags++;
 								}
+								tags[model.getArrayIndex(tag)]++;
 								if (model.containsEmiss(tag, word) == 0) {
 									model.setEmiss(tag, word, 1);
 								} else {

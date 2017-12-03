@@ -4,6 +4,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 
+import static java.lang.System.exit;
+
 /**
  * Created by martin on 01.12.17.
  */
@@ -22,6 +24,9 @@ public class Evaluation {
 					 if (s.equals("")) {
 						 continue;
 					 }
+					 if(!s.substring(s.length()-1).equals(".")) {
+						 s=s+" ./.";
+					 }
 					 sentences.add(s);
 				 }
 			 } catch (IOException e) {
@@ -37,25 +42,40 @@ public class Evaluation {
 			 System.out.println("Building Fold "+i);
 			 String trainTitle="Fold_"+i+"_train";
 			 String testTitle="Fold_"+i+"_test";
+			 String evalTitle="Fold_"+i+"_validation";
+
 			 try {
 				  new File("./"+outputs+"/"+trainTitle).mkdirs();
+				  new File("./"+outputs+"/"+evalTitle).mkdirs();
 				  new File("./"+outputs+"/"+testTitle).mkdirs();
-
 				 PrintWriter trainWriter = new PrintWriter("./"+outputs+"/"+trainTitle+"/train", "UTF-8");
-				 PrintWriter testWriter = new PrintWriter("./"+outputs+"/"+testTitle+"/test", "UTF-8");
+				 PrintWriter testfileWriter = new PrintWriter("./"+outputs+"/"+testTitle+"/test", "UTF-8");
+				 PrintWriter validationWriter = new PrintWriter("./"+outputs+"/"+evalTitle+"/validation", "UTF-8");
 				 for (String sentence : sentences) {
 					 if (j % 10 == i) {
-						 testWriter.write(sentence+"\n");
+						 //write testfile for accuracy calc
+						 validationWriter.write(sentence+"\n");
+						 //write taglessvariant for testing
+						 for (String word : sentence.split("\\s+")){
+							 if (!word.equals("")){
+								 String wordWithoutTags= word.substring(0,word.lastIndexOf("/"));
+								 testfileWriter.write(wordWithoutTags+" ");
+						 	}
+						 }
+						 testfileWriter.write("\n");
+
 					 } else {
 						 trainWriter.write(sentence+"\n");
 					 }
 					 j++;
 				 }
 				 trainWriter.close();
-				 testWriter.close();
+				 testfileWriter.close();
+				 validationWriter.close();
 			 }
 			 catch (Exception e){
 				 e.printStackTrace();
+				 exit(-1);
 			 }
 		 }
 	 }
@@ -71,6 +91,7 @@ public class Evaluation {
 
 			 System.out.println(">Annotating");
 			 String[] testArguments={"annotate","./"+outputs+"/Fold_"+i+"_test/","./"+outputs};
+
 			 uebung2_group1.main(testArguments);
 
 			 //read in test file and output file for accuracy calculation
@@ -81,11 +102,13 @@ public class Evaluation {
 						 new File("./"+outputs+"/test").toPath(),
 						 StandardCopyOption.REPLACE_EXISTING);
 				*/
-
 				 BufferedReader testFile = new BufferedReader(
-				 		new FileReader("./"+outputs+"/Fold_"+i+"_test/test"));
+				 		new FileReader("./"+outputs+"/Fold_"+i+"_validation/validation"));
 				 BufferedReader outputFile = new BufferedReader(
 				 		new FileReader("./"+outputs+"/test"));
+
+				 //removing tags for file
+
 
 				 String s=null;
 				 String tag = null;

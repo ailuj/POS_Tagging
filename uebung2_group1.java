@@ -1,5 +1,6 @@
 import java.io.*;
 import java.util.*;
+import java.math.*;
 
 public class uebung2_group1 {
 	private static ReadModel data =  new ReadModel();
@@ -91,11 +92,16 @@ public class uebung2_group1 {
             }
             String[][] words = splitText(folder);
             Tagging v = new Tagging();
-            for (int x = 0; x < words.length; x++){
-                String tags = v.viterbi(words[x]);
-                File outputFile = new File(outputDir + "/" + filenames.get(x));
+            for(int y = 0; y < words.length; y++){
+                List<String> temp = new ArrayList<String>();
+                for (int x = 0; x < words[y].length; x++){
+                    temp.add(words[y][x]);
+                }
+                String tags = v.viterbi(temp.toArray(new String[temp.size()]));
+                File outputFile = new File(outputDir + "/" + filenames.get(y));
                 writeLineToFile(outputFile, tags);
             }
+
 		}
 	}
 
@@ -149,7 +155,9 @@ public class uebung2_group1 {
             String[] parts = null;
             e.printStackTrace();
         }
+        System.out.println(temp.toString());
         files[count] = temp.toArray(new String[temp.size()]);
+        //System.out.println(files[count].toString());
         count += 1;
         }
         return files;
@@ -188,7 +196,8 @@ public class uebung2_group1 {
                 for (int state = 0; state < tags.length; state++){
                     int[] path = deepCopyIntArray(n[state].path);
                     double prob = n[state].prob;
-                    double p = model.getEmiss(tags[nextState], words[output]) * model.getTrans(tags[state], tags[nextState]);
+                    double p = Math.log(model.getEmiss(tags[nextState], words[output])) + Math.log(model.getTrans(tags[state], tags[nextState]));
+                    System.out.println(p);
                     prob *= p;
                     if(prob > valMax){
                         if(path.length == words.length){
@@ -214,6 +223,7 @@ public class uebung2_group1 {
             }
         }
         String viterbiPath = "";
+        //System.out.println(words.length);
         for(int i = 0; i < argMax.length; i++){
             String tagged = words[i] + "/" + tags[argMax[i]] + " ";
             //System.out.print(words[i] + "/" + tags[argMax[i]] + " ");

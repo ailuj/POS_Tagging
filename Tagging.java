@@ -67,6 +67,7 @@ public class Tagging {
                     String[] parts = s.split("\\s+");
                     for(int x = 0; x < parts.length; x++){
                         temp.add(parts[x]);
+
                     }
                 }
             if (br != null) {
@@ -118,7 +119,7 @@ public class Tagging {
                 for (int state = 0; state < tags.length; state++){
                     int[] path = deepCopyIntArray(n[state].path);
                     double prob = n[state].prob;
-                    double p = model.getEmiss(tags[nextState], words[output]) * model.getTrans(tags[state], tags[nextState]) +0.1;
+                    double p = model.getEmiss(tags[nextState], words[output]) * model.getTrans(tags[state], tags[nextState]) * 10;
                     //System.out.println(p);
                     prob *= p;
                     if(prob > valMax){
@@ -144,6 +145,8 @@ public class Tagging {
                 valMax = prob;
             }
         }
+        //System.out.println("valMax: " + valMax);
+        //System.out.println("argMax: " + argMax.length);
         String viterbiPath = "";
         for(int i = 0; i < argMax.length; i++){
             String tagged = words[i] + "/" + tags[argMax[i]] + " ";

@@ -1,6 +1,5 @@
 import java.io.*;
 import java.util.*;
-import java.math.*;
 
 public class uebung2_group1 {
 	private static ReadModel data =  new ReadModel();
@@ -97,9 +96,23 @@ public class uebung2_group1 {
                 for (int x = 0; x < words[y].length; x++){
                     temp.add(words[y][x]);
                 }
-                String tags = v.viterbi(temp.toArray(new String[temp.size()]));
+                List<String> temp2 = new ArrayList<String>();
+                String taggedDoc = "";
+                for (int z = 0; z < temp.size(); z++){
+                    String tagString = "";
+                    if (temp.get(z).equals(".") || temp.get(z).equals("!") || temp.get(z).equals("?")){
+                        temp2.add(temp.get(z));
+                        tagString = v.viterbi(temp2.toArray(new String[temp2.size()]));
+                        taggedDoc += tagString + " \n";
+                        temp2.clear();
+                    }
+                    else{
+                        temp2.add(temp.get(z));
+                    }
+
+                }
                 File outputFile = new File(outputDir + "/" + filenames.get(y));
-                writeLineToFile(outputFile, tags);
+                writeLineToFile(outputFile, taggedDoc);
             }
 
 		}
@@ -155,9 +168,8 @@ public class uebung2_group1 {
             String[] parts = null;
             e.printStackTrace();
         }
-        System.out.println(temp.toString());
+        //System.out.println(temp.toString());
         files[count] = temp.toArray(new String[temp.size()]);
-        //System.out.println(files[count].toString());
         count += 1;
         }
         return files;

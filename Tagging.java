@@ -121,7 +121,7 @@ public class Tagging {
                 for (int state = 0; state < tags.length; state++){
                     int[] path = deepCopyIntArray(n[state].path);
                     double prob = n[state].prob;
-                    double p = model.getEmiss(tags[nextState], words[output]) * model.getTrans(tags[state], tags[nextState]) * 10;
+                    double p = model.getEmiss(tags[nextState], words[output]) * model.getTrans(tags[state], tags[nextState]) + 0.1;
                     //System.out.println(p);
                     prob *= p;
                     if(prob > valMax){

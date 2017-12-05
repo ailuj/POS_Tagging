@@ -110,16 +110,24 @@ public class uebung2_group1 {
                 String taggedDoc = "";
                 for (int z = 0; z < temp.size(); z++){
                     String tagString = "";
-                    if (temp.get(z).equals(".") || temp.get(z).equals("!") || temp.get(z).equals("?")){
+                    if (temp.get(z).equals(".") || temp.get(z).equals("!") || temp.get(z).equals("?") || temp.get(z).equals(";")){
                         temp2.add(temp.get(z));
                         tagString = v.viterbi(temp2.toArray(new String[temp2.size()]));
-                        taggedDoc += tagString + " \n";
+						int tagStringSize=tagString.split("\\s+").length;
+						if(tagStringSize!=temp2.size()){
+							String sentence="";
+							for (int i = 0; i < temp2.size(); i++) {
+								sentence=sentence+temp2.get(i)+" ";
+							}
+							System.out.println(sentence+"\n");
+							System.out.println(temp2.size()+"\n");
+						}
+                        taggedDoc += tagString + " \n\n";
                         temp2.clear();
                     }
                     else{
                         temp2.add(temp.get(z));
                     }
-
                 }
                 File outputFile = new File(outputDir + "/" + filenames.get(y));
                 writeLineToFile(outputFile, taggedDoc);

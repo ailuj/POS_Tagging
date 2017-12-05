@@ -24,8 +24,14 @@ public class Evaluation {
 					 if (s.equals("")) {
 						 continue;
 					 }
-					 if(!s.substring(s.length()-1).equals(".")) {
-						 s=s+" ./.";
+					 while(!s.substring(s.length()-1).equals(".")) {
+						 String temp=null;
+						 if((temp = br.readLine()) != null) {
+							 s = s + temp;
+						 }
+						 else{
+							 break;
+						 }
 					 }
 					 sentences.add(s);
 				 }
@@ -52,20 +58,38 @@ public class Evaluation {
 				 PrintWriter testfileWriter = new PrintWriter("./"+outputs+"/"+testTitle+"/test", "UTF-8");
 				 PrintWriter validationWriter = new PrintWriter("./"+outputs+"/"+evalTitle+"/validation", "UTF-8");
 				 for (String sentence : sentences) {
+					 String[] sentenceWords=sentence.split("\\s+");
 					 if (j % 10 == i) {
-						 //write testfile for accuracy calc
-						 validationWriter.write(sentence+"\n");
-						 //write taglessvariant for testing
-						 for (String word : sentence.split("\\s+")){
-							 if (!word.equals("")){
-								 String wordWithoutTags= word.substring(0,word.lastIndexOf("/"));
-								 testfileWriter.write(wordWithoutTags+" ");
-						 	}
+						 //write into validation file for accuracy calc
+						 String cleanedSentence = "";
+						 for (int k = 0; k < sentenceWords.length; k++) {
+							 if(!sentenceWords[k].equals("")) {
+								 cleanedSentence = cleanedSentence + sentenceWords[k] + " ";
+							 }
 						 }
-						 testfileWriter.write("\n");
+
+						 validationWriter.write(cleanedSentence + "\n\n");
+
+						 //write taglessvariant into test file
+						 cleanedSentence = "";
+						 for (int k = 0; k < sentenceWords.length; k++) {
+							 if(!sentenceWords[k].equals("")) {
+								 String wordWithoutTags = sentenceWords[k];
+								 wordWithoutTags = wordWithoutTags.substring(0, wordWithoutTags.lastIndexOf("/"));
+								 cleanedSentence = cleanedSentence + wordWithoutTags + " ";
+							 }
+						 }
+						 testfileWriter.write(cleanedSentence + "\n\n");
 
 					 } else {
-						 trainWriter.write(sentence+"\n");
+						 //write into trainingfile
+						 String cleanedSentence="";
+						 for (int k = 0; k < sentenceWords.length; k++) {
+							 if(!sentenceWords[k].equals("")) {
+								 cleanedSentence = cleanedSentence + sentenceWords[k] + " ";
+							 }
+						 }
+						 trainWriter.write(cleanedSentence + "\n\n");
 					 }
 					 j++;
 				 }
@@ -96,28 +120,64 @@ public class Evaluation {
 
 			 //read in test file and output file for accuracy calculation
 			 System.out.println(">Calculating Accuracy");
-			 try{
+			 try {
 				 //dummy copy of output file into output dir until tagging has output file
 				 /*Files.copy(new File("./"+outputs+"/Fold_"+i+"_test/test").toPath(),
 						 new File("./"+outputs+"/test").toPath(),
 						 StandardCopyOption.REPLACE_EXISTING);
 				*/
-				 BufferedReader testFile = new BufferedReader(
-				 		new FileReader("./"+outputs+"/Fold_"+i+"_validation/validation"));
+				 BufferedReader validationFile = new BufferedReader(
+						 new FileReader("./" + outputs + "/Fold_" + i + "_validation/validation"));
 				 BufferedReader outputFile = new BufferedReader(
-				 		new FileReader("./"+outputs+"/test"));
+						 new FileReader("./" + outputs + "/test"));
 
 				 //removing tags for file
-
-
-				 String s=null;
+/*
+				 String s = null;
 				 String tag = null;
-				 ArrayList<String> testTags=new ArrayList<>();
-				 ArrayList<String> outputTags=new ArrayList<>();
+				 ArrayList<String> testTags = new ArrayList<>();
+				 ArrayList<String> outputTags = new ArrayList<>();
 
-				 while((s = testFile.readLine())!=null){
+				 String annotatedFileString = "";
+				 String validationFileString = "";
+				 while ((s = outputFile.readLine()) != null) {
+					 annotatedFileString = annotatedFileString + s;
+				 }
+
+				 while ((s = validationFile.readLine()) != null) {
+					 validationFileString = validationFileString + s;
+				 }
+
+				 String[] annotatedFileWords = annotatedFileString.split("\\s+");
+				 String[] validationFileWords = validationFileString.split("\\s+");
+
+				 ArrayList<String> annotatedTags = new ArrayList<>();
+				 ArrayList<String> validationTags = new ArrayList<>();
+
+				 for (int pos = 0; pos < annotatedFileWords.length; pos++) {
+					 if (!annotatedFileWords[pos].equals("")) {
+						 tag = annotatedFileWords[pos].substring(annotatedFileWords[pos].lastIndexOf("/") + 1);
+						 annotatedTags.add(tag);
+					 }
+				 }
+				 for (int pos = 0; pos < validationFileWords.length; pos++) {
+					 if (!validationFileWords[pos].equals("")) {
+						 tag = validationFileWords[pos].substring(validationFileWords[pos].lastIndexOf("/") + 1);
+						 validationTags.add(tag);
+					 }
+				 }
+				 System.out.println("ANN: " + annotatedTags.size() + " VAL: " + validationTags.size());
+
+			 }*/
+
+				 String s = null;
+				 String tag = null;
+				 ArrayList<String> testTags = new ArrayList<>();
+				 ArrayList<String> outputTags = new ArrayList<>();
+
+				 while ((s = validationFile.readLine()) != null) {
 					 String[] parts = s.split("\\s+");
-					 for (int pos=0; pos<parts.length; pos++) {
+					 for (int pos = 0; pos < parts.length; pos++) {
 						 if (!parts[pos].equals("")) {
 							 tag = parts[pos].substring(parts[pos].lastIndexOf("/") + 1);
 							 testTags.add(tag);
@@ -125,19 +185,20 @@ public class Evaluation {
 					 }
 				 }
 
-				 while((s = outputFile.readLine())!=null){
+				 while ((s = outputFile.readLine()) != null) {
 					 String[] parts = s.split("\\s+");
-					 for (int pos=0; pos<parts.length; pos++) {
+					 for (int pos = 0; pos < parts.length; pos++) {
 						 if (!parts[pos].equals("")) {
 							 tag = parts[pos].substring(parts[pos].lastIndexOf("/") + 1);
 							 outputTags.add(tag);
 						 }
 					 }
 				 }
-				 System.out.println("Tag List Sizes: "+testTags.size()+" "+outputTags.size());
-				 double accuracy=calculateAccuracy(testTags,outputTags);
-				 System.out.println("Accuracy :"+accuracy);
-				 averageAccuracy+=accuracy;
+
+				 System.out.println("Tag List Sizes: " + testTags.size() + " " + outputTags.size());
+				 double accuracy = calculateAccuracy(testTags, outputTags);
+				 System.out.println("Accuracy :" + accuracy);
+				 averageAccuracy += accuracy;
 			 }
 			 catch(Exception e){
 				 e.printStackTrace();

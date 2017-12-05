@@ -13,6 +13,7 @@ public class uebung2_group1 {
 			FileReader fr = null;
 			File folder = new File(args[1]);
 			boolean found_start = false;
+            boolean found_end = false;
 			int sentenceCount = 0;
 			int tags0 = 0;
 			int[] tagCount = new int[93];
@@ -27,7 +28,10 @@ public class uebung2_group1 {
 					String tag = null;
 					String lastTag = null;
 					while ((s = br.readLine()) != null) {
-						found_start = false;
+						if (found_end) {
+                            found_start = false;
+                            found_end = false;
+                        }
 						if (s.equals("")) {
 							continue;
 						}
@@ -38,10 +42,16 @@ public class uebung2_group1 {
 								lastTag = tag;
 								word = parts[i].substring(0,parts[i].lastIndexOf("/"));
 								tag = parts[i].substring(parts[i].lastIndexOf("/")+1);
+                                //Satzende
+                                if ((word.equals(".") || word.equals("!") || word.equals("?")) && (i == (parts.length-1))) {
+                                    found_end = true;
+                                }
+                                //add tag
 								if (model.setTag(tag, distinctTags) == 1) {
 									distinctTags++;
 								}
 								tagCount[model.getArrayIndex(tag)]++;
+                                //add emission
 								if (model.containsEmiss(tag, word) == 0) {
 									model.setEmiss(tag, word, 1, sentenceCount%2);
 								} else {
@@ -155,7 +165,9 @@ public class uebung2_group1 {
                     }
                     String[] parts = s.split("\\s+");
                     for(int x = 0; x < parts.length; x++){
-                        temp.add(parts[x]);
+                        if (!parts[x].equals("")) {
+                            temp.add(parts[x]);
+                        }
                     }
                 }
             if (br != null) {

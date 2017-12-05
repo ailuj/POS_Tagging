@@ -66,7 +66,9 @@ public class Tagging {
                     }
                     String[] parts = s.split("\\s+");
                     for(int x = 0; x < parts.length; x++){
-                        temp.add(parts[x]);
+                        if (!parts[x].equals("")) {
+                            temp.add(parts[x]);
+                        }
 
                     }
                 }

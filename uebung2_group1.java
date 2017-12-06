@@ -174,7 +174,11 @@ public class uebung2_group1 {
                     String[] parts = s.split("\\s+");
                     for(int x = 0; x < parts.length; x++){
                         if (!parts[x].equals("")) {
-                            temp.add(parts[x].substring(0,parts[x].lastIndexOf("/")));
+                            if ((parts[x].length() > 2) && (parts[x].substring(parts[x].length()-3)).equals("/NA")) {      //Normalfall
+                                temp.add(parts[x].substring(0,parts[x].lastIndexOf("/")));
+                            } else {                                                            //Evaluation
+                                temp.add(parts[x]);
+                            }
                         }
                     }
                 }

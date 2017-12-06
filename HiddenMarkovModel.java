@@ -9,6 +9,7 @@ public class HiddenMarkovModel implements Serializable {
 	public double[] p_unseenEmiss;
 	public HashSet<String> wordSet;
 	public HashMap[] simulateUnseen;
+	private static final long serialVersionUID = -7809230847994360168L;
 
 	HiddenMarkovModel() {
 		this.tagMap = new HashMap<String,Integer>();

@@ -43,8 +43,8 @@ public class Evaluation {
 	 }
 
 	 private static void buildFolds(ArrayList<String> sentences, File outputs){
-		 int j=0;
 		 for (int i=0;i<10;i++){
+			 int j=0;
 			 System.out.println("Building Fold "+i);
 			 String trainTitle="Fold_"+i+"_train";
 			 String testTitle="Fold_"+i+"_test";
